@@ -13,6 +13,7 @@ const NuevoPlatillo = () => {
     const [subiendo, guardarSubiendo] = useState(false);
     const [progreso, guardarProgreso] = useState(0);
     const [urlImagen, guardarUrlImagen] = useState('');
+    const [correcto, guardarCorrecto] = useState(false)
 
 
     //Context con las operaciones de firebase
@@ -49,6 +50,7 @@ const NuevoPlatillo = () => {
                     .required('la descripción es obligatoria'),
         
         }),
+        //validateOnChange: true,
 
         onSubmit: platillo => {
             try {
@@ -66,11 +68,16 @@ const NuevoPlatillo = () => {
         }
     });
 
+    const valido = formik.isValid && formik.values !== formik.initialValues
+
+    //console.log(formik.isValid, formik.values !== formik.initialValues)
+
     //Todo sobre las imagenes
 
         const handleUploadStart = () => {
             guardarProgreso(0);
             guardarSubiendo(true);
+            guardarCorrecto(false);
         }
         const handleUploadError = error => {
             guardarSubiendo(false);
@@ -79,6 +86,7 @@ const NuevoPlatillo = () => {
         const handleUploadSuccess = async nombre => {
             guardarProgreso(100);
             guardarSubiendo(false);
+            guardarCorrecto(true);
 
             //Almacenar la URL de destino
             const url = await firebase
@@ -177,6 +185,7 @@ const NuevoPlatillo = () => {
                         <div className="mb-4">
                             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="imagen">Imagen</label>
                             <FileUploader 
+                               
                                 accept="image/*"
                                 id= "imagen"
                                 name= "imagen"
@@ -189,7 +198,26 @@ const NuevoPlatillo = () => {
 
                             />
                         </div>
-                        
+
+
+                        {subiendo && (
+                            
+                            <div className="h-12 relative w-full border">
+
+                                <div className="bg-green-500 absolute left-0 top-0 text-white px-2 text-sm h-12 flex items-center" style={{width: `${progreso}%`}}>
+                                    {progreso} %
+                                    
+                                </div>
+                            </div>
+                            
+                        )}
+
+                        {urlImagen && correcto && (
+                            <p className="bg-green-500 text-white p-3 text-center my-5">
+                                La imagen se subió correctamente
+                            </p>
+                          ) } 
+
                         <div className="mb-4">
                             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="descripcion">Descripción</label>
                             <textarea 
@@ -209,10 +237,12 @@ const NuevoPlatillo = () => {
                         ) : null }
 
                         <input 
-                            type="submit"
-                            className="bg-gray-800 hover:bg-gray-900 w-full mt-5 p-2 text-white uppercase font-bold"
-                            value="Agregar Platillo"
-                        />
+                                type="submit"
+                                className={valido ? "bg-gray-800 hover:bg-gray-900 w-full mt-5 p-2 text-white uppercase font-bold cursor-pointer" : "bg-gray-200 w-full mt-5 p-2 text-white uppercase font-bold"}
+                                value="Agregar Platillo"
+                         />
+
+
                     </form>
                 </div>
             </div>
